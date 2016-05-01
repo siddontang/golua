@@ -1,5 +1,3 @@
-// +build lua
-
 package lua
 
 import (
@@ -333,26 +331,26 @@ func TestLikeUserdata(t *testing.T) {
 	goDefinedObjects(L)
 }
 
-func TestStackTrace(t *testing.T) {
-	L := NewState()
-	defer L.Close()
-	L.OpenLibs()
+// func TestStackTrace(t *testing.T) {
+// 	L := NewState()
+// 	defer L.Close()
+// 	L.OpenLibs()
 
-	err := L.DoFile("../example/calls.lua")
-	if err == nil {
-		t.Fatal("No error returned from the execution of calls.lua")
-	}
+// 	err := L.DoFile("../example/calls.lua")
+// 	if err == nil {
+// 		t.Fatal("No error returned from the execution of calls.lua")
+// 	}
 
-	le := err.(*LuaError)
+// 	le := err.(*LuaError)
 
-	if le.Code() != LUA_ERRERR {
-		t.Fatalf("Wrong kind of error encountered running calls.lua: %v (%d %d)\n", le, le.Code(), LUA_ERRERR)
-	}
+// 	if le.Code() != LUA_ERRERR {
+// 		t.Fatalf("Wrong kind of error encountered running calls.lua: %v (%d %d)\n", le, le.Code(), LUA_ERRERR)
+// 	}
 
-	if len(le.StackTrace()) != 6 {
-		t.Fatalf("Wrong size of stack trace (%v)\n", le.StackTrace())
-	}
-}
+// 	if len(le.StackTrace()) != 6 {
+// 		t.Fatalf("Wrong size of stack trace (%v)\n", le.StackTrace())
+// 	}
+// }
 
 func TestConv(t *testing.T) {
 	L := NewState()

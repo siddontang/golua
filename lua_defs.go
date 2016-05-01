@@ -1,11 +1,9 @@
-// +build lua
-
 package lua
 
 /*
 #include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
+ #include <lauxlib.h>
+ #include <lualib.h>
 
 */
 import "C"

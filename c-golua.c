@@ -1,5 +1,3 @@
-// +build lua
-
 #include <lua.h>
 #include <lauxlib.h>
 #include <lualib.h>
@@ -57,14 +55,15 @@ unsigned int* clua_checkgosomething(lua_State* L, int index, const char *desired
 	}
 }
 
-GoInterface* clua_getgostate(lua_State* L)
+size_t clua_getgostate(lua_State* L)
 {
+	size_t gostateindex;
 	//get gostate from registry entry
 	lua_pushlightuserdata(L,(void*)&GoStateRegistryKey);
 	lua_gettable(L, LUA_REGISTRYINDEX);
-	GoInterface* gip = lua_touserdata(L,-1);
+	gostateindex = (size_t)lua_touserdata(L,-1);
 	lua_pop(L,1);
-	return gip;
+	return gostateindex;
 }
 
 
@@ -73,10 +72,10 @@ int callback_function(lua_State* L)
 {
 	int r;
 	unsigned int *fid = clua_checkgosomething(L, 1, MT_GOFUNCTION);
-	GoInterface* gi = clua_getgostate(L);
+	size_t gostateindex = clua_getgostate(L);
 	//remove the go function from the stack (to present same behavior as lua_CFunctions)
 	lua_remove(L,1);
-	return golua_callgofunction(*gi, fid!=NULL ? *fid : -1);
+	return golua_callgofunction(gostateindex, fid!=NULL ? *fid : -1);
 }
 
 //wrapper for gchook
@@ -84,9 +83,9 @@ int gchook_wrapper(lua_State* L)
 {
 	//printf("Garbage collection wrapper\n");
 	unsigned int* fid = clua_checkgosomething(L, -1, NULL);
-	GoInterface* gi = clua_getgostate(L);
+	size_t gostateindex = clua_getgostate(L);
 	if (fid != NULL)
-		return golua_gchook(*gi,*fid);
+		return golua_gchook(gostateindex,*fid);
 	return 0;
 }
 
@@ -113,8 +112,8 @@ void clua_pushgofunction(lua_State* L, unsigned int fid)
 static int callback_c (lua_State* L)
 {
 	int fid = clua_togofunction(L,lua_upvalueindex(1));
-	GoInterface *gi = clua_getgostate(L);
-	return golua_callgofunction(*gi,fid);
+	size_t gostateindex = clua_getgostate(L);
+	return golua_callgofunction(gostateindex,fid);
 }
 
 void clua_pushcallback(lua_State* L)
@@ -137,14 +136,11 @@ int default_panicf(lua_State *L)
 	abort();
 }
 
-void clua_setgostate(lua_State* L, GoInterface gi)
+void clua_setgostate(lua_State* L, size_t gostateindex)
 {
 	lua_atpanic(L, default_panicf);
 	lua_pushlightuserdata(L,(void*)&GoStateRegistryKey);
-	GoInterface* gip = (GoInterface*)lua_newuserdata(L,sizeof(GoInterface));
-	//copy interface value to userdata
-	gip->v = gi.v;
-	gip->t = gi.t;
+	lua_pushlightuserdata(L, (void*)gostateindex);
 	//set into registry table
 	lua_settable(L, LUA_REGISTRYINDEX);
 }
@@ -166,9 +162,9 @@ int interface_index_callback(lua_State *L)
 		return 1;
 	}
 
-	GoInterface* gi = clua_getgostate(L);
+	size_t gostateindex = clua_getgostate(L);
 
-	int r = golua_interface_index_callback(*gi, *iid, field_name);
+	int r = golua_interface_index_callback(gostateindex, *iid, field_name);
 
 	if (r < 0)
 	{
@@ -198,9 +194,9 @@ int interface_newindex_callback(lua_State *L)
 		return 1;
 	}
 
-	GoInterface* gi = clua_getgostate(L);
+	size_t gostateindex = clua_getgostate(L);
 
-	int r = golua_interface_newindex_callback(*gi, *iid, field_name);
+	int r = golua_interface_newindex_callback(gostateindex, *iid, field_name);
 
 	if (r < 0)
 	{
@@ -215,8 +211,8 @@ int interface_newindex_callback(lua_State *L)
 
 int panic_msghandler(lua_State *L)
 {
-	GoInterface* gi = clua_getgostate(L);
-	go_panic_msghandler(*gi, (char *)lua_tolstring(L, -1, NULL));
+	size_t gostateindex = clua_getgostate(L);
+	go_panic_msghandler(gostateindex, (char *)lua_tolstring(L, -1, NULL));
 	return 0;
 }
 
@@ -277,8 +273,8 @@ int callback_panicf(lua_State* L)
 	lua_gettable(L,LUA_REGISTRYINDEX);
 	unsigned int fid = lua_tointeger(L,-1);
 	lua_pop(L,1);
-	GoInterface* gi = clua_getgostate(L);
-	return golua_callpanicfunction(*gi,fid);
+	size_t gostateindex = clua_getgostate(L);
+	return golua_callpanicfunction(gostateindex,fid);
 
 }
 
@@ -396,27 +392,4 @@ void clua_setexecutionlimit(lua_State* L, int n)
 	lua_sethook(L, &clua_hook_function, LUA_MASKCOUNT, n);
 }
 
-LUALIB_API int (luaopen_cjson) (lua_State *L);
-LUALIB_API int (luaopen_struct) (lua_State *L);
-LUALIB_API int (luaopen_cmsgpack) (lua_State *L);
 
-void clua_opencjson(lua_State* L)
-{
-	lua_pushcfunction(L,&luaopen_cjson);
-	lua_pushstring(L,"cjson");
-	lua_call(L, 1, 0);
-}
-
-void clua_openstruct(lua_State* L)
-{
-	lua_pushcfunction(L,&luaopen_struct);
-	lua_pushstring(L,"struct");
-	lua_call(L, 1, 0);
-}
-
-void clua_opencmsgpack(lua_State* L)
-{
-	lua_pushcfunction(L,&luaopen_cmsgpack);
-	lua_pushstring(L,"cmsgpack");
-	lua_call(L, 1, 0);
-}

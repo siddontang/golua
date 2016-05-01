@@ -1,5 +1,3 @@
-// +build lua
-
 #include <stdint.h>
 
 typedef struct { void *t; void *v; } GoInterface;
@@ -15,8 +13,8 @@ unsigned int clua_togostruct(lua_State *L, int index);
 void clua_pushcallback(lua_State* L);
 void clua_pushgofunction(lua_State* L, unsigned int fid);
 void clua_pushgostruct(lua_State *L, unsigned int fid);
-void clua_setgostate(lua_State* L, GoInterface gostate);
-GoInterface* clua_getgostate(lua_State* L);
+void clua_setgostate(lua_State* L, size_t gostateindex);
+size_t clua_getgostate(lua_State* L);
 GoInterface clua_atpanic(lua_State* L, unsigned int panicf_id);
 int clua_callluacfunc(lua_State* L, lua_CFunction f);
 lua_State* clua_newstate(void* goallocf);
@@ -34,6 +32,3 @@ void clua_setexecutionlimit(lua_State* L, int n);
 int clua_isgofunction(lua_State *L, int n);
 int clua_isgostruct(lua_State *L, int n);
 
-void clua_opencjson(lua_State* L);
-void clua_openstruct(lua_State* L);
-void clua_opencmsgpack(lua_State* L);

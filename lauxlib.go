@@ -1,5 +1,3 @@
-// +build lua
-
 package lua
 
 //#include <lua.h>
@@ -29,8 +27,9 @@ func (err *LuaError) StackTrace() []LuaStackEntry {
 }
 
 // luaL_argcheck
-func (L *State) ArgCheck(cond bool, narg int, extramsg string) {
-	if cond {
+// WARNING: before b30b2c62c6712c6683a9d22ff0abfa54c8267863 the function ArgCheck had the opposite behaviour
+func (L *State) Argcheck(cond bool, narg int, extramsg string) {
+	if !cond {
 		Cextramsg := C.CString(extramsg)
 		defer C.free(unsafe.Pointer(Cextramsg))
 		C.luaL_argerror(L.s, C.int(narg), Cextramsg)
