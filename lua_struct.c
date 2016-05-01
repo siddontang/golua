@@ -1,5 +1,3 @@
-// +build lua
-
 /*
 ** {======================================================
 ** Library for packing/unpacking structures.

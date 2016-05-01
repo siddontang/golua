@@ -1,5 +1,3 @@
-// +build lua
-
 #define VERSION "1.0.3"
 
 /* CJSON - JSON support for Lua

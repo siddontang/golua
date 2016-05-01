@@ -1,5 +1,3 @@
-// +build lua
-
 /* strbuf - string buffer routines
  *
  * Copyright (c) 2010-2011  Mark Pulford <mark@kyne.com.au>

@@ -393,3 +393,27 @@ void clua_setexecutionlimit(lua_State* L, int n)
 }
 
 
+LUALIB_API int (luaopen_cjson) (lua_State *L);
+LUALIB_API int (luaopen_struct) (lua_State *L);
+LUALIB_API int (luaopen_cmsgpack) (lua_State *L);
+
+void clua_opencjson(lua_State* L)
+{
+	lua_pushcfunction(L,&luaopen_cjson);
+	lua_pushstring(L,"cjson");
+	lua_call(L, 1, 0);
+}
+
+void clua_openstruct(lua_State* L)
+{
+	lua_pushcfunction(L,&luaopen_struct);
+	lua_pushstring(L,"struct");
+	lua_call(L, 1, 0);
+}
+
+void clua_opencmsgpack(lua_State* L)
+{
+	lua_pushcfunction(L,&luaopen_cmsgpack);
+	lua_pushstring(L,"cmsgpack");
+	lua_call(L, 1, 0);
+}

@@ -661,3 +661,18 @@ func (L *State) RaiseError(msg string) {
 func (L *State) NewError(msg string) *LuaError {
 	return &LuaError{0, msg, L.StackTrace()}
 }
+
+// Calls luaopen_cjson
+func (L *State) OpenCJson() {
+	C.clua_opencjson(L.s)
+}
+
+// Calls luaopen_struct
+func (L *State) OpenStruct() {
+	C.clua_openstruct(L.s)
+}
+
+// Calls luaopen_cmsgpack
+func (L *State) OpenCMsgpack() {
+	C.clua_opencmsgpack(L.s)
+}

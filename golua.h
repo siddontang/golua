@@ -32,3 +32,6 @@ void clua_setexecutionlimit(lua_State* L, int n);
 int clua_isgofunction(lua_State *L, int n);
 int clua_isgostruct(lua_State *L, int n);
 
+void clua_opencjson(lua_State* L);
+void clua_openstruct(lua_State* L);
+void clua_opencmsgpack(lua_State* L);
